@@ -5,6 +5,12 @@
   font-style: normal;
 }
 
+:root {
+  --color-primary: #f74c00;
+  --color-accent: #00abf7;
+  --color-base: #ffffff;
+}
+
 .bg_red {
   background: linear-gradient(135deg, #ffffffe6, #f3b4ab);
   margin: 0;
