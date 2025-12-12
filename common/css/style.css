@@ -1,15 +1,11 @@
-@font-face {
-  font-family: "mplus";
-  src: url("/fonts/MPLUS1p-Bold.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
 :root {
   --color-primary: #f74c00;
   --color-accent: #00abf7;
   --color-base: #ffffff;
   --text-base: #333333;
+  font-family: "M PLUS 1p", sans-serif;
+  font-weight: 400;
+  font-style: normal;
 }
 
 .bg_red {
