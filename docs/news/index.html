@@ -35,19 +35,11 @@
         <p class="desc">初めての投稿です。</p>
       </a>
     </article>
-<hr>
-    <article class="news-item">
-      <a href="./article/memo/">
-        <h3>コンテキスト</h3>
-        <p class="date">2025-12-12</p>
-        <p class="desc">KaiTomotakeからの指示を確認するためにおいてるだけです・</p>
-      </a>
-    </article>
     </div>
     <style>
         .bg_red{
             height: fit-containt;
-            min-height: calc(100vh - 80px);
+            min-height: calc(90vh - 80px);
             padding-top: 80px;
         }
         h3,a{
@@ -66,5 +58,55 @@
             margin: 2px 0;
         }
     </style>
+  <footer>
+    <div class="footer_links">
+      <a class="footer_links" href="https://github.com/Rust-Developers-JP">
+        <img src="/images/github.svg" alt="github icon"/>
+      </a>
+      <a class="footer_links" href="https://discord.com/invite/KDCDNtxzB9">
+        <img src="/images/discord.svg" alt="discord icon"/>
+      </a>
+    </div>
+    <ul>
+      <li><a href="/index.html">Top</a></li>
+      <li><a href="/about/index.html">About</a></li>
+      <li><a href="/news/index.html">News</a></li>
+      <li><a href="/guide/index.html">Guide</a></li>
+      <li><a href="/faq/index.html">F&Q</a></li>
+    </ul>
+    <p>
+      Copyright &copy; 2025 <button id="show_contributors">Rust Developers JP Community</button> All Rights Reserved.
+    </p>
+    <dialog id="footer_dlg">
+      <h3>貢献者</h3>
+      <p><small>背景は貢献度です。</small></p>
+      <div id="footer_contributors">
+        
+        <a class="contributor_item" href="https://github.com/Povo-43" style="background-color:rgb(212,93,75)">
+          <img class="contributor_img" src="https://avatars.githubusercontent.com/u/172659873?v=4" alt="Povo-43's icon" />
+          <p class="contributor_name">Povo-43</p>
+        </a>
+      
+        <a class="contributor_item" href="https://github.com/yuito-it" style="background-color:rgb(251,238,236)">
+          <img class="contributor_img" src="https://avatars.githubusercontent.com/u/132048482?v=4" alt="yuito-it's icon" />
+          <p class="contributor_name">yuito-it</p>
+        </a>
+      
+      </div>
+      <a class="footer_more" href="https://github.com/Rust-Developers-JP/official_site/graphs/contributors">詳しく</a>
+      <button id="footer_close">閉じる</button>
+    </dialog>
+    <script>
+      const dlg = document.getElementById("footer_dlg");
+
+      document.getElementById("show_contributors").onclick = () => {
+        dlg.showModal();
+      };
+
+      document.getElementById("footer_close").onclick = () => {
+        dlg.close();
+      };
+    </script>
+  </footer>
 </body>
 </html>

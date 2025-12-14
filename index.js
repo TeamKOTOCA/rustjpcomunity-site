@@ -1,3 +1,4 @@
+(async () => {
 const fs = require("fs-extra");
 const path = require("path");
 const matter = require("gray-matter");
@@ -10,8 +11,8 @@ const ARTICLE_DIR = path.join(ROOT, "articles");
 const OUT_DIR = path.join(ROOT, "docs");
 
 // ▼ テンプレート
-const NEWS_LIST_TEMPLATE = path.join(PAGE_DIR, "news", "template.html");
-const ARTICLE_TEMPLATE = path.join(PAGE_DIR, "news", "article_template.html");
+const NEWS_LIST_TEMPLATE = path.join(PAGE_DIR, "template", "newslist_template.html");
+const ARTICLE_TEMPLATE = path.join(PAGE_DIR, "template", "article_template.html");
 
 // ▼ 出力ディレクトリ初期化
 fs.removeSync(OUT_DIR);
@@ -22,10 +23,19 @@ const settings = JSON.parse(
   fs.readFileSync(path.join(ROOT, "setting.json"), "utf8")
 );
 
+let GROBAL_contributors_html = "";
+let footer_html = fs.readFileSync(
+  path.join(PAGE_DIR, "template", "footer_template.html"),
+  "utf8"
+);
+footer_html = footer_html.replaceAll("{{github_url}}", settings.github_url);
+footer_html = footer_html.replaceAll("{{discord_url}}", settings.discord_url);
+footer_html = await GetContributors(footer_html);
+
 // ============================================================================
 // 1. /pages 配下の “news 以外を全部” コピー
 // ============================================================================
-function copyExceptNews(src, dest) {
+async function copyExceptNews(src, dest, settings) {
   fs.mkdirpSync(dest);
 
   const entries = fs.readdirSync(src, { withFileTypes: true });
@@ -38,26 +48,7 @@ function copyExceptNews(src, dest) {
     if (entry.name === "news") continue;
 
     if (entry.isDirectory()) {
-      copyExceptNews(srcPath, destPath);
-    } else {
-      fs.copySync(srcPath, destPath);
-    }
-  }
-}
-function copyExceptNews(src, dest, settings) {
-  fs.mkdirpSync(dest);
-
-  const entries = fs.readdirSync(src, { withFileTypes: true });
-
-  for (const entry of entries) {
-    const srcPath = path.join(src, entry.name);
-    const destPath = path.join(dest, entry.name);
-
-    // news フォルダはコピーしない（テンプレ用途のため）
-    if (entry.name === "news") continue;
-
-    if (entry.isDirectory()) {
-      copyExceptNews(srcPath, destPath, settings);
+      await copyExceptNews(srcPath, destPath, settings);
     } else {
       if (entry.name.endsWith(".html")) {
         // HTMLなら置換してコピー
@@ -66,6 +57,15 @@ function copyExceptNews(src, dest, settings) {
         // settings.json に合わせて {{key}} を置換
         for (const [key, value] of Object.entries(settings)) {
           content = content.replaceAll(`{{${key}}}`, value);
+        }
+
+        if (content.includes("</body>")) {
+          content = content.replace(/<\/body>/i, `${footer_html}\n</body>`);
+        }
+
+        //contributorsが要素内にあれば置き換え(footerは先にもうやってる)
+        if (content.includes("{{contributors}}")) {
+          content = await GetContributors(content);
         }
 
         fs.writeFileSync(destPath, content, "utf8");
@@ -77,7 +77,53 @@ function copyExceptNews(src, dest, settings) {
   }
 }
 
-copyExceptNews(PAGE_DIR, OUT_DIR, settings);
+function contributionColor(count, maxCount) {
+  const ratio = count / maxCount;
+
+  const r = Math.round(255 + (212 - 255) * ratio);
+  const g = Math.round(255 + (93 - 255) * ratio);
+  const b = Math.round(255 + (75 - 255) * ratio);
+
+  return `rgb(${r},${g},${b})`;
+}
+
+async function GetContributors(html) {
+  if(GROBAL_contributors_html == ""){
+    GROBAL_contributors_html = await fetchContributors();
+  }
+
+  return html.replace("{{contributors}}", GROBAL_contributors_html);
+}
+
+async function fetchContributors() {
+  const url = `https://api.github.com/repos/Rust-Developers-JP/official_site/contributors`;
+  const res = await fetch(url);
+  if (!res.ok) throw new Error(`GitHub API error: ${res.status}`);
+
+  const data = await res.json();
+  if (data.length === 0) return "";
+
+  const maxCount = Math.max(...data.filter(c => !c.login.endsWith('[bot]')).map(c => c.contributions));
+
+  let contributors_list_html = "";
+
+  for (const contributor of data) {
+    if (!contributor.login.endsWith('[bot]')) {
+      const bgColor = contributionColor(contributor.contributions, maxCount);
+
+      contributors_list_html += `
+        <a class="contributor_item" href="${contributor.html_url}" style="background-color:${bgColor}">
+          <img class="contributor_img" src="${contributor.avatar_url}" alt="${contributor.login}'s icon" />
+          <p class="contributor_name">${contributor.login}</p>
+        </a>
+      `;
+    }
+  }
+
+  return contributors_list_html;
+}
+
+await copyExceptNews(PAGE_DIR, OUT_DIR, settings);
 
 // ============================================================================
 // 2. 記事（/articles/*.md）読み込み
@@ -128,7 +174,8 @@ articles.forEach(article => {
     .replace(/{{date}}/g, article.date)
     .replace(/{{body}}/g, article.htmlBody)
     .replace(/{{description}}/g, article.description)
-    .replace(/{{tags}}/g, tagsHtml);
+    .replace(/{{tags}}/g, tagsHtml)
+    .replace(/<\/body>/i, `${footer_html}\n</body>`);
 
   fs.writeFileSync(path.join(outDir, "index.html"), html, "utf8");
 });
@@ -151,7 +198,9 @@ articles.forEach(article => {
     </article>
   `.trim()).join("\n");
 
-  const final = template.replace("{{articles}}", listHtml);
+  let final = template.replace("{{articles}}", listHtml);
+
+  final = final.replace(/<\/body>/i, `${footer_html}\n</body>`);
 
   const outDir = path.join(OUT_DIR, "news");
   fs.mkdirpSync(outDir);
@@ -177,7 +226,7 @@ articles.forEach(article => {
     `.trim())
     .join("\n");
 
-  const final = template.replace("{{articles}}", listHtml);
+    const final = template.replace("{{articles}}", listHtml);
 
   const outDir = OUT_DIR;
   fs.mkdirpSync(outDir);
@@ -186,3 +235,4 @@ articles.forEach(article => {
 
 
 console.log("Build completed.");
+})();
