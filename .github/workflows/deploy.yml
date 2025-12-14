@@ -55,4 +55,3 @@ jobs:
 
           git commit -m "Deploy docs from main"
           git push --force origin gh-pages
-          

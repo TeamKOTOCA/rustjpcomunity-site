@@ -19,9 +19,7 @@ fs.removeSync(OUT_DIR);
 fs.mkdirpSync(OUT_DIR);
 
 // 細かい設定の入力
-const settings = JSON.parse(
-  fs.readFileSync(path.join(ROOT, "setting.json"), "utf8")
-);
+const settings = JSON.parse(fs.readFileSync(path.join(ROOT, "setting.json"), "utf8"));
 
 let GROBAL_contributors_html = "";
 let footer_html = fs.readFileSync(
@@ -128,9 +126,10 @@ await copyExceptNews(PAGE_DIR, OUT_DIR, settings);
 // ============================================================================
 // 2. 記事（/articles/*.md）読み込み
 // ============================================================================
-const articles = fs.readdirSync(ARTICLE_DIR)
-  .filter(f => f.endsWith(".md"))
-  .map(filename => {
+const articles = fs
+  .readdirSync(ARTICLE_DIR)
+  .filter((f) => f.endsWith(".md"))
+  .map((filename) => {
     const raw = fs.readFileSync(path.join(ARTICLE_DIR, filename), "utf8");
     const { data, content } = matter(raw);
 
@@ -138,9 +137,7 @@ const articles = fs.readdirSync(ARTICLE_DIR)
       throw new Error(`Front matter の必須項目不足: ${filename}`);
     }
 
-    const slug = filename
-      .replace(/\.md$/, "")
-      .replace(/^\d{4}-\d{2}-\d{2}-/, "");
+    const slug = filename.replace(/\.md$/, "").replace(/^\d{4}-\d{2}-\d{2}-/, "");
 
     const htmlBody = marked.parse(content);
 
@@ -150,7 +147,7 @@ const articles = fs.readdirSync(ARTICLE_DIR)
       title: data.title,
       description: data.description || "",
       tags: data.tags || [],
-      htmlBody
+      htmlBody,
     };
   })
   .sort((a, b) => new Date(b.date) - new Date(a.date));
@@ -158,16 +155,14 @@ const articles = fs.readdirSync(ARTICLE_DIR)
 // ============================================================================
 // 3. 記事詳細ページ生成
 // ============================================================================
-articles.forEach(article => {
+articles.forEach((article) => {
   const outDir = path.join(OUT_DIR, "news", "article", article.slug);
   fs.mkdirpSync(outDir);
 
   const template = fs.readFileSync(ARTICLE_TEMPLATE, "utf8");
 
   // tags → HTML 文字列（空なら ""）
-  const tagsHtml = (article.tags || [])
-    .map(tag => `<span class="tag">${tag}</span>`)
-    .join(" ");
+  const tagsHtml = (article.tags || []).map((tag) => `<span class="tag">${tag}</span>`).join(" ");
 
   const html = template
     .replace(/{{title}}/g, article.title)
@@ -180,14 +175,15 @@ articles.forEach(article => {
   fs.writeFileSync(path.join(outDir, "index.html"), html, "utf8");
 });
 
-
 // ============================================================================
 // 4. 記事一覧ページ生成
 // ============================================================================
 {
   const template = fs.readFileSync(NEWS_LIST_TEMPLATE, "utf8");
 
-  const listHtml = articles.map(a => `
+  const listHtml = articles
+    .map((a) =>
+      `
     <hr>
     <article class="news-item">
       <a href="./article/${a.slug}/">
@@ -196,7 +192,9 @@ articles.forEach(article => {
         <p class="desc">${a.description}</p>
       </a>
     </article>
-  `.trim()).join("\n");
+  `.trim()
+    )
+    .join("\n");
 
   let final = template.replace("{{articles}}", listHtml);
 
@@ -214,7 +212,8 @@ articles.forEach(article => {
 
   const listHtml = articles
     .slice(0, 3)
-    .map(a => `
+    .map((a) =>
+      `
       <hr>
       <article class="news-item">
         <a href="./news/article/${a.slug}/">
@@ -223,7 +222,8 @@ articles.forEach(article => {
           <p class="desc">${a.description}</p>
         </a>
       </article>
-    `.trim())
+    `.trim()
+    )
     .join("\n");
 
     const final = template.replace("{{articles}}", listHtml);
@@ -232,7 +232,6 @@ articles.forEach(article => {
   fs.mkdirpSync(outDir);
   fs.writeFileSync(path.join(outDir, "index.html"), final, "utf8");
 }
-
 
 console.log("Build completed.");
 })();
