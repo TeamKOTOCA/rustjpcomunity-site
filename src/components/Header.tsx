@@ -11,7 +11,7 @@ const HeaderLinks = [
 export default function Header() {
   return (
     <header className="p-4 flex flex-row justify-between items-center">
-      <h1 className="flex flex-row justify-start items-center text-2xl font-bold gap-2 grow">
+      <h1 className="flex flex-row justify-start items-center font-bold gap-2 grow">
         <Image
           src="/img/rust.svg"
           alt="Rust Developer JP"

@@ -3,6 +3,10 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
+  --rust-red: #c7240b;
+  --rust-red-2: #ce412b;
+  --rust-accent: #f3644e;
+  --box-shadow: #f3b4ab 7px 5px 0;
 }
 
 @theme inline {
@@ -16,4 +20,17 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+  @apply min-h-screen;
+}
+
+main {
+  @apply min-h-[70vh] p-5 flex flex-col gap-10 justify-center items-center;
+}
+
+h1 {
+  @apply text-3xl;
+}
+
+.btn_1 {
+  @apply inline-block text-center no-underline text-white bg-(--rust-red-2) shadow-(--box-shadow) px-5 py-2;
 }
