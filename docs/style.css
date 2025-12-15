@@ -163,3 +163,21 @@ footer button:hover{
 #footer_dlg button:hover{
     color: #555;
 }
+
+.footer_join_link{
+    background-color:#fff;
+    box-shadow: #f3b4ab 7px 5px 0;
+    color: #000;
+    text-decoration:none;
+    display: block;
+    width: 90vw;
+    max-width: 400px;
+    margin: 10px auto 30px auto;
+    text-align: center;
+    padding: 15px 20px ;
+    font-size: 1.2em;
+}
+.footer_join_link:hover{
+    background-color:#f7e0dd;
+    box-shadow: #f3b4ab 3px 2px 0;
+}
