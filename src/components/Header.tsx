@@ -31,13 +31,18 @@ export default function Header() {
       />
       <header className="p-4 flex flex-row justify-between items-center">
         <h1 className="flex flex-row justify-start items-center font-bold gap-2 grow">
-          <Image
-            src="/img/rust.svg"
-            alt="Rust Developer JP"
-            width={50}
-            height={50}
-          />
-          Rust Developer JP
+          <Link
+            href="/"
+            className="flex flex-row justify-start items-center gap-2"
+          >
+            <Image
+              src="/img/rust.svg"
+              alt="Rust Developer JP"
+              width={50}
+              height={50}
+            />
+            Rust Developer JP
+          </Link>
         </h1>
         <nav>
           <ul className="flex flex-row gap-4">
